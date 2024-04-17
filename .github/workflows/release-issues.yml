@@ -8,24 +8,17 @@ on:
 jobs:
   compile_issues:
     runs-on: ubuntu-latest
-    if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-')
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        fetch-depth: 0  # Important to fetch all commits
+        fetch-depth: 0
 
     - name: Extract commits and issues
       run: |
-        # Fetch all commits between main branch and the newly created release branch
-        echo "Commits from the main branch to the new release branch:"
-        git log main..${GITHUB_REF#refs/heads/} --pretty=format:"%H %s" > commits.txt
-        cat commits.txt
+        echo "Commits from main to ${GITHUB_REF#refs/heads/}:"
+        git log main..${GITHUB_REF#refs/heads/} --pretty=format:"%H %s"
 
-        # Extract issues, assuming commit messages have the format "Issue #123 - description"
-        grep -o 'Issue #[0-9]\+' commits.txt > issues.txt
-        echo "List of issues included in the release:"
-        cat issues.txt
 
     - name: Create issue on GitHub with the list of included issues
       uses: JasonEtco/create-an-issue@v2
