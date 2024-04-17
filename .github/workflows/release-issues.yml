@@ -14,19 +14,17 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: List all branches
+      run: git branch -a
+
+    - name: Ensure main and release branch are fetched
+      run: |
+        git fetch --all
+        git checkout main
+        git checkout ${GITHUB_REF#refs/heads/}
+        git branch -a
+
     - name: Extract commits and issues
       run: |
         echo "Commits from main to ${GITHUB_REF#refs/heads/}:"
         git log main..${GITHUB_REF#refs/heads/} --pretty=format:"%H %s"
-
-
-    - name: Create issue on GitHub with the list of included issues
-      uses: JasonEtco/create-an-issue@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        filename: .github/release-report.md
-        title: "Issues included in release ${GITHUB_REF#refs/heads/}"
-        body: |
-          This release includes the following issues:
-          $(cat issues.txt)
